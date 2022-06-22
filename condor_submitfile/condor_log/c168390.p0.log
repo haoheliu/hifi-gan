@@ -1,0 +1,49 @@
+000 (168390.000.000) 2022-06-18 19:59:47 Job submitted from host: <131.227.81.72:9618?addrs=131.227.81.72-9618&alias=condor.eps.surrey.ac.uk&noUDP&sock=schedd_2762_14ab>
+...
+040 (168390.000.000) 2022-06-18 19:59:47 Started transferring input files
+	Transferring to host: <131.227.80.59:9618?addrs=131.227.80.59-9618&alias=gloin.eps.surrey.ac.uk&noUDP&sock=slot1_1_31708_e782_5299>
+...
+040 (168390.000.000) 2022-06-18 19:59:47 Finished transferring input files
+...
+001 (168390.000.000) 2022-06-18 19:59:48 Job executing on host: <131.227.80.59:9618?addrs=131.227.80.59-9618&alias=gloin.eps.surrey.ac.uk&noUDP&sock=startd_31594_6f41>
+...
+006 (168390.000.000) 2022-06-18 19:59:57 Image size of job updated: 125
+	8  -  MemoryUsage of job (MB)
+	8340  -  ResidentSetSize of job (KB)
+...
+006 (168390.000.000) 2022-06-18 20:04:57 Image size of job updated: 25630
+	25630  -  MemoryUsage of job (MB)
+	26246004  -  ResidentSetSize of job (KB)
+...
+006 (168390.000.000) 2022-06-18 21:15:05 Image size of job updated: 25798
+	25798  -  MemoryUsage of job (MB)
+	26417376  -  ResidentSetSize of job (KB)
+...
+006 (168390.000.000) 2022-06-18 22:30:12 Image size of job updated: 25847
+	25847  -  MemoryUsage of job (MB)
+	26467544  -  ResidentSetSize of job (KB)
+...
+006 (168390.000.000) 2022-06-19 03:15:43 Image size of job updated: 25877
+	25877  -  MemoryUsage of job (MB)
+	26498844  -  ResidentSetSize of job (KB)
+...
+006 (168390.000.000) 2022-06-19 22:27:37 Image size of job updated: 25878
+	25878  -  MemoryUsage of job (MB)
+	26499416  -  ResidentSetSize of job (KB)
+...
+006 (168390.000.000) 2022-06-20 18:49:46 Image size of job updated: 25889
+	25889  -  MemoryUsage of job (MB)
+	26510784  -  ResidentSetSize of job (KB)
+...
+004 (168390.000.000) 2022-06-21 20:09:54 Job was evicted.
+	(0) CPU times
+		Usr 13 15:59:10, Sys 8 12:54:57  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	121432  -  Run Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :     0.00        7         7 
+	   Disk (KB)            :  5078         125    419193 
+	   Gpus (Average)       :                 7         7 "CUDA0,CUDA1,CUDA2,CUDA3,CUDA4,CUDA5,CUDA6"
+	   Memory (MB)          : 25889       65536     65536 
+...

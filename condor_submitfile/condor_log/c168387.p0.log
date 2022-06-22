@@ -1,0 +1,32 @@
+000 (168387.000.000) 2022-06-18 19:55:12 Job submitted from host: <131.227.81.72:9618?addrs=131.227.81.72-9618&alias=condor.eps.surrey.ac.uk&noUDP&sock=schedd_2762_14ab>
+...
+040 (168387.000.000) 2022-06-18 19:55:12 Started transferring input files
+	Transferring to host: <131.227.80.56:9618?addrs=131.227.80.56-9618&alias=kili.eps.surrey.ac.uk&noUDP&sock=slot1_1_18085_44b8_27863>
+...
+040 (168387.000.000) 2022-06-18 19:55:12 Finished transferring input files
+...
+001 (168387.000.000) 2022-06-18 19:55:13 Job executing on host: <131.227.80.56:9618?addrs=131.227.80.56-9618&alias=kili.eps.surrey.ac.uk&noUDP&sock=startd_17956_e6a5>
+...
+006 (168387.000.000) 2022-06-18 19:55:22 Image size of job updated: 125
+	20  -  MemoryUsage of job (MB)
+	20860  -  ResidentSetSize of job (KB)
+...
+006 (168387.000.000) 2022-06-18 20:00:23 Image size of job updated: 25629
+	25629  -  MemoryUsage of job (MB)
+	26244804  -  ResidentSetSize of job (KB)
+...
+004 (168387.000.000) 2022-06-18 20:09:46 Job was evicted.
+	(0) CPU times
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	121432  -  Run Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :     0.00        7         7 
+	   Disk (KB)            :   163         125    648785 
+	   Gpus (Average)       :                 7         7 "CUDA0,CUDA1,CUDA2,CUDA3,CUDA4,CUDA5,CUDA6"
+	   Memory (MB)          : 25629       65536     65536 
+...
+009 (168387.000.000) 2022-06-18 20:09:46 Job was aborted.
+	via condor_rm (by user hl01486)
+...
