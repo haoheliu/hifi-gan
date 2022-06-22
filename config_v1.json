@@ -10,12 +10,12 @@
 
     "upsample_rates": [6,5,4,2,2],
     "upsample_kernel_sizes": [12,10,8,4,4],
-    "upsample_initial_channel": 512,
-    "resblock_kernel_sizes": [3,7,11],
-    "resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]],
+    "upsample_initial_channel": 1024,
+    "resblock_kernel_sizes": [3,7,11,15],
+    "resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5], [1,3,5]],
 
     "segment_size": 15360,
-    "num_mels": 128,
+    "num_mels": 256,
     "n_fft": 2048,
     "hop_size": 480,
     "win_size": 2048,
@@ -26,7 +26,7 @@
     "fmax": 24000,
     "fmax_for_loss": null,
 
-    "num_workers": 4,
+    "num_workers": 6,
 
     "dist_config": {
         "dist_backend": "nccl",

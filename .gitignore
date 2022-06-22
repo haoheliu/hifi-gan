@@ -1,3 +1,5 @@
 do*
 g_*
 log*
+*.pyc
+condor*

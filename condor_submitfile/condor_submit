@@ -28,8 +28,8 @@ requirements = ((CUDADeviceName == "GeForce GTX TITAN X")  && (machine != "dwali
 
 # --------------------------------------
 # Resources
-request_GPUs     = 7
-request_CPUs     = 1
+request_GPUs     = 4
+request_CPUs     = 2
 request_memory = 64G
 # -----------------------------------
 # Queue commands

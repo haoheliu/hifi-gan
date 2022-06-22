@@ -75,7 +75,8 @@ def train(rank, a, h):
 
     trainset = MelDataset(training_filelist, h.segment_size, h.n_fft, h.num_mels,
                           h.hop_size, h.win_size, h.sampling_rate, h.fmin, h.fmax, n_cache_reuse=0,
-                          shuffle=False if h.num_gpus > 1 else True, fmax_loss=h.fmax_for_loss, device=device,
+                          shuffle= True, # False if h.num_gpus > 1 else True, 
+                          fmax_loss=h.fmax_for_loss, device=device,
                           fine_tuning=a.fine_tuning, base_mels_path=a.input_mels_dir)
 
     train_sampler = DistributedSampler(trainset) if h.num_gpus > 1 else None
@@ -120,6 +121,7 @@ def train(rank, a, h):
             y = y.unsqueeze(1)
 
             y_g_hat = generator(x)
+            # print(1)
             y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate, h.hop_size, h.win_size,
                                           h.fmin, h.fmax_for_loss)
 
@@ -194,17 +196,19 @@ def train(rank, a, h):
                             x, y, _, y_mel = batch
                             y_g_hat = generator(x.to(device))
                             y_mel = torch.autograd.Variable(y_mel.to(device, non_blocking=True))
+                            # print(2)
                             y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate,
                                                           h.hop_size, h.win_size,
                                                           h.fmin, h.fmax_for_loss)
                             val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
 
-                            if j <= 4:
+                            if j <= 36:
                                 if steps == 0:
                                     sw.add_audio('gt/y_{}'.format(j), y[0], steps, h.sampling_rate)
                                     sw.add_figure('gt/y_spec_{}'.format(j), plot_spectrogram(x[0]), steps)
 
                                 sw.add_audio('generated/y_hat_{}'.format(j), y_g_hat[0], steps, h.sampling_rate)
+                                # print(3,">????????")
                                 y_hat_spec = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels,
                                                              h.sampling_rate, h.hop_size, h.win_size,
                                                              h.fmin, h.fmax)
