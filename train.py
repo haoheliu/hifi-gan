@@ -92,7 +92,7 @@ def train(rank, a, h):
                               h.hop_size, h.win_size, h.sampling_rate, h.fmin, h.fmax, False, False, n_cache_reuse=0,
                               fmax_loss=h.fmax_for_loss, device=device, fine_tuning=a.fine_tuning,
                               base_mels_path=a.input_mels_dir)
-        validation_loader = DataLoader(validset, num_workers=1, shuffle=False,
+        validation_loader = DataLoader(validset, num_workers=8, shuffle=False,
                                        sampler=None,
                                        batch_size=1,
                                        pin_memory=True,
@@ -186,7 +186,7 @@ def train(rank, a, h):
                     sw.add_scalar("training/mel_spec_error", mel_error, steps)
 
                 # Validation
-                if steps % a.validation_interval == 0: # and steps != 0:
+                if steps % a.validation_interval == 0: #  and steps != 0
                     generator.eval()
                     torch.cuda.empty_cache()
                     val_err_tot = 0
@@ -237,15 +237,16 @@ def main():
     parser.add_argument('--group_name', default=None)
     parser.add_argument('--input_wavs_dir', default='LJSpeech-1.1/wavs')
     parser.add_argument('--input_mels_dir', default='ft_dataset')
-    parser.add_argument('--input_training_file', default='LJSpeech-1.1/training.txt')
-    parser.add_argument('--input_validation_file', default='LJSpeech-1.1/validation.txt')
-    parser.add_argument('--checkpoint_path', default='cp_hifigan')
+    parser.add_argument('--input_training_file', default='/mnt/bn/lqhaoheliu/metadata/audio_48k_filelist/training_data_filtered.lst')
+    # parser.add_argument('--input_training_file', default='/mnt/bn/lqhaoheliu/metadata/audio_48k_filelist/val_data_filtered.lst')
+    parser.add_argument('--input_validation_file', default='/mnt/bn/lqhaoheliu/metadata/audio_48k_filelist/val_data_filtered.lst')
+    parser.add_argument('--checkpoint_path', default='cp_hifigan_48k_universal')
     parser.add_argument('--config', default='')
     parser.add_argument('--training_epochs', default=3100, type=int)
-    parser.add_argument('--stdout_interval', default=5, type=int)
-    parser.add_argument('--checkpoint_interval', default=5000, type=int)
+    parser.add_argument('--stdout_interval', default=1, type=int)
+    parser.add_argument('--checkpoint_interval', default=20000, type=int)
     parser.add_argument('--summary_interval', default=100, type=int)
-    parser.add_argument('--validation_interval', default=5000, type=int)
+    parser.add_argument('--validation_interval', default=10000, type=int)
     parser.add_argument('--fine_tuning', default=False, type=bool)
 
     a = parser.parse_args()
