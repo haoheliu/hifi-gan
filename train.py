@@ -186,7 +186,7 @@ def train(rank, a, h):
                     sw.add_scalar("training/mel_spec_error", mel_error, steps)
 
                 # Validation
-                if steps % a.validation_interval == 0: #  and steps != 0
+                if steps % a.validation_interval == 0 and steps != 0: #
                     generator.eval()
                     torch.cuda.empty_cache()
                     val_err_tot = 0
@@ -240,7 +240,8 @@ def main():
     parser.add_argument('--input_training_file', default='/mnt/bn/lqhaoheliu/metadata/audio_48k_filelist/training_data_filtered.lst')
     # parser.add_argument('--input_training_file', default='/mnt/bn/lqhaoheliu/metadata/audio_48k_filelist/val_data_filtered.lst')
     parser.add_argument('--input_validation_file', default='/mnt/bn/lqhaoheliu/metadata/audio_48k_filelist/val_data_filtered.lst')
-    parser.add_argument('--checkpoint_path', default='cp_hifigan_48k_universal')
+    parser.add_argument('--checkpoint_path', default='cp_hifigan_48k_universal_16bits')
+    # parser.add_argument('--checkpoint_path', default='test')
     parser.add_argument('--config', default='')
     parser.add_argument('--training_epochs', default=3100, type=int)
     parser.add_argument('--stdout_interval', default=1, type=int)
