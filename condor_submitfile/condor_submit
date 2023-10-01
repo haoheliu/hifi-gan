@@ -7,7 +7,7 @@
 # --------------------------------------------
 # Executable and its arguments
 executable    = /bin/sh
-arguments = $ENV(PWD)/submit.sh 
+arguments = /mnt/fast/nobackup/scratch4weeks/hl01486/project/hifi-gan/condor_submitfile/submit.sh
 log    = condor_log/c$(cluster).p$(process).log
 output = condor_log/c$(cluster).p$(process).out
 error  = condor_log/c$(cluster).p$(process).error
@@ -18,19 +18,20 @@ error  = condor_log/c$(cluster).p$(process).error
 #transfer_input_files = catch_signal_test.py
 #when_to_transfer_output = ON_EXIT
 Environment = PYTHONIOENCODING=UTF-8
-environment = "mount=/vol/research/"
+# environment = "mount=/vol/research/"
 +CanCheckpoint = False
 +JobRunTime = 72
 +GPUMem = 8000
 # -------------------------------------
 # Requirements for the Job
-requirements = ((CUDADeviceName == "GeForce GTX TITAN X")  && (machine != "dwalin.eps.surrey.ac.uk") || (CUDADeviceName == "Quadro RTX 5000")  && (machine != "dwalin.eps.surrey.ac.uk") || (CUDADeviceName == "GeForce RTX 3090"))  && (machine != "dwalin.eps.surrey.ac.uk")
+# requirements = ((CUDADeviceName == "NVIDIA GeForce RTX 3090")  && (machine != "dwalin.eps.surrey.ac.uk") || (CUDADeviceName == "Quadro RTX 5000")  && (machine != "dwalin.eps.surrey.ac.uk") || (CUDADeviceName == "GeForce RTX 3090"))  && (machine != "dwalin.eps.surrey.ac.uk")
+requirements = (CUDADeviceName == "NVIDIA A100-SXM4-80GB")
 
 # --------------------------------------
 # Resources
 request_GPUs     = 4
-request_CPUs     = 2
-request_memory = 64G
+request_CPUs     = 4
+request_memory = 128G
 # -----------------------------------
 # Queue commands
 # -----------------------------------

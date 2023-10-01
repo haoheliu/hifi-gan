@@ -14,7 +14,7 @@ from torch.distributed import init_process_group
 from torch.nn.parallel import DistributedDataParallel
 from env import AttrDict, build_env
 from meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
-from models import Generator, MultiPeriodDiscriminator, MultiScaleDiscriminator, feature_loss, generator_loss,\
+from models import Generator, MultiPeriodDiscriminator, MultiScaleDiscriminator, MultiResolutionDiscriminator, feature_loss, generator_loss,\
     discriminator_loss
 from utils import plot_spectrogram, scan_checkpoint, load_checkpoint, save_checkpoint
 
@@ -31,7 +31,8 @@ def train(rank, a, h):
 
     generator = Generator(h).to(device)
     mpd = MultiPeriodDiscriminator().to(device)
-    msd = MultiScaleDiscriminator().to(device)
+    # msd = MultiScaleDiscriminator().to(device)
+    mrd = MultiResolutionDiscriminator().to(device)
 
     if rank == 0:
         print(generator)
@@ -51,17 +52,19 @@ def train(rank, a, h):
         state_dict_do = load_checkpoint(cp_do, device)
         generator.load_state_dict(state_dict_g['generator'])
         mpd.load_state_dict(state_dict_do['mpd'])
-        msd.load_state_dict(state_dict_do['msd'])
+        # msd.load_state_dict(state_dict_do['msd'])
+        mrd.load_state_dict(state_dict_do['mrd'])
         steps = state_dict_do['steps'] + 1
         last_epoch = state_dict_do['epoch']
 
     if h.num_gpus > 1:
         generator = DistributedDataParallel(generator, device_ids=[rank]).to(device)
         mpd = DistributedDataParallel(mpd, device_ids=[rank]).to(device)
-        msd = DistributedDataParallel(msd, device_ids=[rank]).to(device)
+        # msd = DistributedDataParallel(msd, device_ids=[rank]).to(device)
+        mrd = DistributedDataParallel(mrd, device_ids=[rank]).to(device)
 
     optim_g = torch.optim.AdamW(generator.parameters(), h.learning_rate, betas=[h.adam_b1, h.adam_b2])
-    optim_d = torch.optim.AdamW(itertools.chain(msd.parameters(), mpd.parameters()),
+    optim_d = torch.optim.AdamW(itertools.chain( mpd.parameters(), mrd.parameters()), # msd.parameters(),
                                 h.learning_rate, betas=[h.adam_b1, h.adam_b2])
 
     if state_dict_do is not None:
@@ -102,7 +105,8 @@ def train(rank, a, h):
 
     generator.train()
     mpd.train()
-    msd.train()
+    # msd.train()
+    mrd.train()
     for epoch in range(max(0, last_epoch), a.training_epochs):
         if rank == 0:
             start = time.time()
@@ -126,16 +130,19 @@ def train(rank, a, h):
                                           h.fmin, h.fmax_for_loss)
 
             optim_d.zero_grad()
-
             # MPD
             y_df_hat_r, y_df_hat_g, _, _ = mpd(y, y_g_hat.detach())
             loss_disc_f, losses_disc_f_r, losses_disc_f_g = discriminator_loss(y_df_hat_r, y_df_hat_g)
 
             # MSD
-            y_ds_hat_r, y_ds_hat_g, _, _ = msd(y, y_g_hat.detach())
-            loss_disc_s, losses_disc_s_r, losses_disc_s_g = discriminator_loss(y_ds_hat_r, y_ds_hat_g)
+            # y_ds_hat_r, y_ds_hat_g, _, _ = msd(y, y_g_hat.detach())
+            # loss_disc_s, losses_disc_s_r, losses_disc_s_g = discriminator_loss(y_ds_hat_r, y_ds_hat_g)
 
-            loss_disc_all = loss_disc_s + loss_disc_f
+            # MRS
+            y_ds_hat_r, y_ds_hat_g, _, _ = mrd(y, y_g_hat.detach())
+            loss_disc_r, losses_disc_r_r, losses_disc_r_g = discriminator_loss(y_ds_hat_r, y_ds_hat_g)
+
+            loss_disc_all = loss_disc_f + loss_disc_r
             loss_disc_all.backward()
             optim_d.step()
 
@@ -146,8 +153,9 @@ def train(rank, a, h):
             loss_mel = F.l1_loss(y_mel, y_g_hat_mel) * 45
 
             y_df_hat_r, y_df_hat_g, fmap_f_r, fmap_f_g = mpd(y, y_g_hat)
-            y_ds_hat_r, y_ds_hat_g, fmap_s_r, fmap_s_g = msd(y, y_g_hat)
-            # import ipdb; ipdb.set_trace()
+            # y_ds_hat_r, y_ds_hat_g, fmap_s_r, fmap_s_g = msd(y, y_g_hat)
+            y_ds_hat_r, y_ds_hat_g, fmap_s_r, fmap_s_g = mrd(y, y_g_hat)
+
             loss_fm_f = feature_loss(fmap_f_r, fmap_f_g)
             loss_fm_s = feature_loss(fmap_s_r, fmap_s_g)
             loss_gen_f, losses_gen_f = generator_loss(y_df_hat_g)
@@ -175,8 +183,8 @@ def train(rank, a, h):
                     save_checkpoint(checkpoint_path, 
                                     {'mpd': (mpd.module if h.num_gpus > 1
                                                          else mpd).state_dict(),
-                                     'msd': (msd.module if h.num_gpus > 1
-                                                         else msd).state_dict(),
+                                     'mrd': (mrd.module if h.num_gpus > 1
+                                                         else mrd).state_dict(),
                                      'optim_g': optim_g.state_dict(), 'optim_d': optim_d.state_dict(), 'steps': steps,
                                      'epoch': epoch})
 
@@ -237,12 +245,12 @@ def main():
     parser.add_argument('--group_name', default=None)
     parser.add_argument('--input_wavs_dir', default='LJSpeech-1.1/wavs')
     parser.add_argument('--input_mels_dir', default='ft_dataset')
-    parser.add_argument('--input_training_file', default='LJSpeech-1.1/training.txt')
-    parser.add_argument('--input_validation_file', default='LJSpeech-1.1/validation.txt')
+    parser.add_argument('--input_training_file', default='/mnt/fast/nobackup/scratch4weeks/hl01486/project/hifi-gan/train.lst')
+    parser.add_argument('--input_validation_file', default='/mnt/fast/nobackup/scratch4weeks/hl01486/project/hifi-gan/val.lst')
     parser.add_argument('--checkpoint_path', default='cp_hifigan')
     parser.add_argument('--config', default='')
     parser.add_argument('--training_epochs', default=3100, type=int)
-    parser.add_argument('--stdout_interval', default=5, type=int)
+    parser.add_argument('--stdout_interval', default=50, type=int)
     parser.add_argument('--checkpoint_interval', default=5000, type=int)
     parser.add_argument('--summary_interval', default=100, type=int)
     parser.add_argument('--validation_interval', default=5000, type=int)

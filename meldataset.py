@@ -1,6 +1,7 @@
 import math
 import os
 import random
+import torchaudio
 import torch
 import torch.utils.data
 import numpy as np
@@ -50,7 +51,7 @@ def mel_spectrogram(y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin,
         print('min value is ', torch.min(y))
     if torch.max(y) > 1.:
         print('max value is ', torch.max(y))
-
+    # y = torch.clip(y, min=-1, max=1)
     global mel_basis, hann_window
     if fmax not in mel_basis:
         mel = librosa_mel_fn(sampling_rate, n_fft, num_mels, fmin, fmax)
@@ -132,8 +133,9 @@ class MelDataset(torch.utils.data.Dataset):
                 audio = normalize(audio) * 0.95
             self.cached_wav = audio
             if sampling_rate != self.sampling_rate:
-                raise ValueError("{} SR doesn't match target {} SR, file: {}".format(
-                    sampling_rate, self.sampling_rate, filename))
+                audio = torchaudio.functional.resample(torch.Tensor(audio), orig_freq=sampling_rate, new_freq=self.sampling_rate).numpy()
+                # raise ValueError("{} SR doesn't match target {} SR, file: {}".format(
+                    # sampling_rate, self.sampling_rate, filename))
             self._cache_ref_count = self.n_cache_reuse
         else:
             audio = self.cached_wav
@@ -141,6 +143,9 @@ class MelDataset(torch.utils.data.Dataset):
 
         audio = torch.FloatTensor(audio)
         audio = audio.unsqueeze(0)
+        
+        if(torch.max(torch.abs(audio)) > 0.01):
+            audio = 0.5 * audio / torch.max(torch.abs(audio))
 
         if not self.fine_tuning:
             if self.split:
@@ -150,7 +155,7 @@ class MelDataset(torch.utils.data.Dataset):
                     audio = audio[:, audio_start:audio_start+self.segment_size]
                 else:
                     audio = torch.nn.functional.pad(audio, (0, self.segment_size - audio.size(1)), 'constant')
-            # print("mel")
+
             mel = mel_spectrogram(audio, self.n_fft, self.num_mels,
                                   self.sampling_rate, self.hop_size, self.win_size, self.fmin, self.fmax,
                                   center=False)

@@ -3,3 +3,4 @@ g_*
 log*
 *.pyc
 condor*
+*.lst
